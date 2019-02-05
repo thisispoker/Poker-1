@@ -27,34 +27,38 @@ class Table(object):
         self.game_logger = game_logger
 
     def load_templates(self, p):
+        #创建字典类型而已
         self.cardImages = dict()
         self.img = dict()
         self.tbl = p.selected_strategy['pokerSite']
         values = "23456789TJQKA"
         suites = "CDHS"
         if self.tbl == 'SN': suites = suites.lower()
-
+        
+        #这里他在匹配card的模板了.
         for x in values:
             for y in suites:
                 name = "pics/" + self.tbl[0:2] + "/" + x + y + ".png"
                 if os.path.exists(name):
+                    #图片存好，下面会做格式转换
                     self.img[x + y.upper()] = Image.open(name)
                     # if self.tbl=='SN':
                     #     self.img[x + y.upper()]=self.crop_image(self.img[x + y.upper()], 5,5,20,45)
-
+                    #格式转换，将所有牌的格式转换成为RGB,opencv只是使用BGR
                     self.cardImages[x + y.upper()] = cv2.cvtColor(np.array(self.img[x + y.upper()]), cv2.COLOR_BGR2RGB)
 
 
                     # (thresh, self.cardImages[x + y]) =
                     # cv2.threshold(self.cardImages[x + y], 128, 255,
                     # cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+                #找不到牌的模板报错
                 else:
                     self.logger.critical("Card template File not found: " + str(x) + str(y) + ".png")
-
+        #读取代表牌桌的各种信息，并且转换成RGB，把所有信息都读取进来
         name = "pics/" + self.tbl[0:2] + "/button.png"
         template = Image.open(name)
         self.button = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
-
+        
         name = "pics/" + self.tbl[0:2] + "/topleft.png"
         template = Image.open(name)
         self.topLeftCorner = cv2.cvtColor(np.array(template), cv2.COLOR_BGR2RGB)
